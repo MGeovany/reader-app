@@ -1,5 +1,5 @@
 // Export all API modules
-export { AuthAPI } from './auth';
+export * from './auth';
 export { DocumentAPI } from './documents';
 export { PreferenceAPI } from './preferences';
 export * from './types';

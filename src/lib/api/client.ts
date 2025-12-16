@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance, type AxiosResponse } from 'axios';
+import axios, { AxiosHeaders, type AxiosInstance, type AxiosResponse } from 'axios';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
 // API Configuration
@@ -22,7 +22,9 @@ apiClient.interceptors.request.use(
     const { data: { session } } = await supabase.auth.getSession();
 
     if (session?.access_token) {
-      config.headers.Authorization = `Bearer ${session.access_token}`;
+      config.headers ??= new AxiosHeaders();
+      (config.headers as any).set?.('Authorization', `Bearer ${session.access_token}`) ??
+        ((config.headers as any).Authorization = `Bearer ${session.access_token}`);
     }
     return config;
   },
@@ -37,12 +39,22 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error) => {
-    // Handle 401 Unauthorized - sign out from Supabase
-    if (error.response?.status === 401) {
+    // Handle 401 Unauthorized:
+    // - Don't sign the user out of Supabase (a backend 401 shouldn't destroy the auth session).
+    // - Try a one-time session refresh + retry in case the token rotated/expired.
+    if (error.response?.status === 401 && error.config && !error.config.__retriedAfterRefresh) {
+      error.config.__retriedAfterRefresh = true;
+
       const { supabase } = await import('$lib/supabase');
-      await supabase.auth.signOut();
-      // Redirect to login page
-      window.location.href = '/login';
+      const { data, error: refreshError } = await supabase.auth.refreshSession();
+
+      if (!refreshError && data.session?.access_token) {
+        error.config.headers ??= new AxiosHeaders();
+        (error.config.headers as any).set?.('Authorization', `Bearer ${data.session.access_token}`) ??
+          ((error.config.headers as any).Authorization = `Bearer ${data.session.access_token}`);
+
+        return apiClient.request(error.config);
+      }
     }
     return Promise.reject(error);
   }

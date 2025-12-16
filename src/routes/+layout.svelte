@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	import { initializeAuth, authLoading } from '$lib/stores/auth';
 	import '../app.css';
 
 	onMount(() => {
-		initializeAuth();
+		if (browser) {
+			initializeAuth();
+		}
 	});
 </script>
 

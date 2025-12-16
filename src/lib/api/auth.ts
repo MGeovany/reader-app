@@ -1,75 +1,51 @@
-import apiClient from './client';
-import type { AuthToken, LoginRequest, User, UserUpdate } from './types';
+import axios from 'axios';
+import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { getSessionToken } from '$lib/stores/auth';
+import type { User } from '@supabase/supabase-js';
 
-export class AuthAPI {
-  /**
-   * Login user
-   */
-  static async login(data: LoginRequest): Promise<AuthToken> {
-    const response = await apiClient.post<AuthToken>('/auth/login', data);
+// Create axios instance with base configuration
+const api = axios.create({
+	baseURL: PUBLIC_API_BASE_URL
+});
 
-    // Store token and user data
-    if (response.data.token) {
-      localStorage.setItem('auth_token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-    }
+// Add auth token to requests
+api.interceptors.request.use((config) => {
+	const token = getSessionToken();
+	if (token) {
+		config.headers.Authorization = `Bearer ${token}`;
+	}
+	return config;
+});
 
-    return response.data;
-  }
+export interface UserProfile {
+	id: string;
+	email: string;
+	user_metadata: {
+		name?: string;
+		avatar_url?: string;
+	};
+	created_at: string;
+	updated_at: string;
+}
 
-  /**
-   * Logout user
-   */
-  static async logout(): Promise<void> {
-    try {
-      await apiClient.post('/auth/logout');
-    } finally {
-      // Always clear local storage
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user');
-    }
-  }
+export interface UpdateProfileRequest {
+	name: string;
+}
 
-  /**
-   * Get current user profile
-   */
-  static async getProfile(): Promise<User> {
-    const response = await apiClient.get<User>('/users/profile');
-    return response.data;
-  }
+// Get current user profile from backend
+export async function getUserProfile(): Promise<UserProfile> {
+	const response = await api.get('/auth/profile');
+	return response.data;
+}
 
-  /**
-   * Update user profile
-   */
-  static async updateProfile(data: UserUpdate): Promise<User> {
-    const response = await apiClient.put<User>('/users/profile', data);
+// Update user profile
+export async function updateUserProfile(data: UpdateProfileRequest): Promise<UserProfile> {
+	const response = await api.put('/auth/profile', data);
+	return response.data;
+}
 
-    // Update stored user data
-    localStorage.setItem('user', JSON.stringify(response.data));
-
-    return response.data;
-  }
-
-  /**
-   * Check if user is authenticated
-   */
-  static isAuthenticated(): boolean {
-    const token = localStorage.getItem('auth_token');
-    return !!token;
-  }
-
-  /**
-   * Get stored user data
-   */
-  static getStoredUser(): User | null {
-    const userData = localStorage.getItem('user');
-    return userData ? JSON.parse(userData) : null;
-  }
-
-  /**
-   * Get stored auth token
-   */
-  static getStoredToken(): string | null {
-    return localStorage.getItem('auth_token');
-  }
+// Validate current token with backend
+export async function validateToken(): Promise<{ valid: boolean; user: UserProfile }> {
+	const response = await api.get('/auth/validate');
+	return response.data;
 }
