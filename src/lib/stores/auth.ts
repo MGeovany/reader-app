@@ -125,9 +125,9 @@ export async function logout() {
 		throw error;
 	}
 
-	// Redirect to login after successful logout
+	// Redirect to landing after successful logout
 	if (browser) {
-		window.location.href = '/login';
+		window.location.href = '/landing';
 	}
 }
 

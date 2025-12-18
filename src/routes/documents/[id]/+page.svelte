@@ -11,7 +11,8 @@
 		updatePreferences,
 		loadPreferences,
 		preferencesLoading,
-		userPreferences
+		userPreferences,
+		readingPositions
 	} from '$lib/stores/preferences';
 	import { currentUser } from '$lib/stores/auth';
 	import { get } from 'svelte/store';
@@ -102,11 +103,11 @@
 	let fontSize = initialPrefs.fontSize;
 	let fontFamily: FontKey = initialPrefs.fontFamily;
 	let lineHeight = initialPrefs.lineHeight;
-	let currentPage = 1;
 	let showControls = false;
 	let savingPosition = false;
 	let loadingPosition = false;
 	let preferencesLoaded = false;
+	let positionLoaded = false;
 
 	let documentData: Document | null = data?.document ?? null;
 
@@ -115,6 +116,29 @@
 	$: selectedFont = fontOptions.find((font) => font.key === fontFamily) ?? fontOptions[0];
 	$: pages = groupContentByPage(documentData?.content ?? []);
 	$: totalPages = getPageCount(documentData);
+
+	// Initialize currentPage from store if available, otherwise default to 1
+	function initializePositionFromStore() {
+		if (!documentData?.id) return 1;
+		const positions = get(readingPositions);
+		const savedPosition = positions.get(documentData.id);
+		if (savedPosition?.page_number && totalPages > 0) {
+			return Math.min(savedPosition.page_number, totalPages);
+		}
+		return 1;
+	}
+
+	let currentPage = 1;
+
+	// Initialize position from store when documentData becomes available
+	$: if (documentData?.id && !positionLoaded && totalPages > 0) {
+		const initialPage = initializePositionFromStore();
+		if (initialPage !== 1) {
+			currentPage = initialPage;
+			positionLoaded = true; // Mark as loaded to prevent re-initialization
+		}
+	}
+
 	$: currentPage = clamp(currentPage, 1, totalPages);
 	$: displayedBlocks = pages[currentPage - 1] ?? [];
 	$: progressPercent = Math.min(100, Math.max(0, (currentPage / totalPages) * 100));
@@ -246,12 +270,26 @@
 	}
 
 	async function loadSavedPosition() {
-		if (!documentData?.id) return;
+		if (!documentData?.id || positionLoaded) return;
+
+		// Check if position is already in store (from previous load)
+		const positions = get(readingPositions);
+		const savedPosition = positions.get(documentData.id);
+		if (savedPosition?.page_number) {
+			// Apply position from store immediately to avoid flash
+			currentPage = Math.min(savedPosition.page_number, totalPages);
+			positionLoaded = true;
+			console.log('Applied position from store:', currentPage);
+			return;
+		}
+
+		positionLoaded = true; // Set early to prevent multiple calls
 		loadingPosition = true;
 		try {
 			const position = await loadReadingPosition(documentData.id);
 			if (position?.page_number) {
 				currentPage = Math.min(position.page_number, totalPages);
+				console.log('Applied position from backend:', currentPage);
 			}
 		} catch (error) {
 			// Position might not exist yet, that's okay
