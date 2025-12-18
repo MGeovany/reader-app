@@ -15,8 +15,8 @@
 
 <div class="flex min-h-screen items-center justify-center">
 	<div class="text-center">
-		<h1 class="mb-4 text-4xl font-bold text-gray-900">PDF Text Reader</h1>
-		<p class="mb-8 text-lg text-gray-600">Transform illegible PDFs into readable text</p>
+		<h1 class="mb-4 text-4xl font-bold text-gray-900">Lector</h1>
+		<p class="mb-8 text-lg text-gray-600">App for simple readers across the world</p>
 		<div class="text-lg">Redirecting...</div>
 	</div>
 </div>

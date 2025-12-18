@@ -9,14 +9,9 @@
 
 	const fontOptions = [
 		{
-			key: 'montserrat',
-			label: 'Montserrat',
-			stack: '"Montserrat", "Helvetica Neue", Arial, sans-serif'
-		},
-		{
-			key: 'helvetica',
-			label: 'Helvetica',
-			stack: 'Helvetica, "Helvetica Neue", Arial, sans-serif'
+			key: 'roboto',
+			label: 'Roboto',
+			stack: '"Roboto", system-ui, sans-serif'
 		},
 		{
 			key: 'merriweather',
@@ -27,29 +22,56 @@
 			key: 'georgia',
 			label: 'Georgia',
 			stack: 'Georgia, "Times New Roman", serif'
+		},
+		{
+			key: 'montserrat',
+			label: 'Montserrat',
+			stack: '"Montserrat", "Helvetica Neue", Arial, sans-serif'
 		}
 	] as const;
 
 	type FontKey = (typeof fontOptions)[number]['key'];
 
-	let theme: 'day' | 'night' = 'day';
-	let fontSize = 18;
-	let fontFamily: FontKey = fontOptions[2].key;
-	let lineHeight = 1.7;
+	// Theme definitions with recommended colors for reduced eye strain
+	const themes = {
+		day: {
+			name: 'Day',
+			bg: '#FAFAFA', // Optimal light background
+			text: '#222222', // Optimal light text
+			bgContainer: '#FFFFFF',
+			border: '#E5E7EB',
+			muted: '#6B7280'
+		},
+		night: {
+			name: 'Night',
+			bg: '#121212', // Optimal dark background (recommended)
+			text: '#E6E6E6', // Optimal dark text (recommended)
+			bgContainer: '#1E1E1E',
+			border: '#2D2D2D',
+			muted: '#B3B3B3'
+		}
+	} as const;
+
+	type ThemeKey = keyof typeof themes;
+
+	let theme: ThemeKey = 'night'; // Optimal dark theme (recommended)
+	let fontSize = 17; // Recommended size for reduced eye strain
+	let fontFamily: FontKey = fontOptions[0].key; // Roboto
+	let lineHeight = 1.6; // Recommended line height
 	let currentPage = 1;
 	let showControls = false;
 
 	let documentData: Document | null = data?.document ?? null;
-	let mutedClass = 'text-slate-500';
 
 	$: documentData = data?.document ?? null;
-	$: selectedFont = fontOptions.find((font) => font.key === fontFamily) ?? fontOptions[2];
+	$: selectedFont = fontOptions.find((font) => font.key === fontFamily) ?? fontOptions[0];
 	$: pages = groupContentByPage(documentData?.content ?? []);
 	$: totalPages = documentData?.metadata?.page_count || pages.length || 1;
 	$: currentPage = clamp(currentPage, 1, totalPages);
 	$: displayedBlocks = pages[currentPage - 1] ?? [];
 	$: progressPercent = Math.min(100, Math.max(0, (currentPage / totalPages) * 100));
-	$: mutedClass = theme === 'night' ? 'text-slate-400' : 'text-slate-500';
+	$: currentTheme = themes[theme];
+	$: themeStyles = `background: ${currentTheme.bg}; color: ${currentTheme.text}; --bg-container: ${currentTheme.bgContainer}; --border-color: ${currentTheme.border}; --muted-color: ${currentTheme.muted};`;
 
 	function groupContentByPage(content: TextBlock[]) {
 		const grouped = new Map<number, TextBlock[]>();
@@ -92,40 +114,45 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 	<link
 		rel="stylesheet"
-		href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Merriweather:wght@400;700&family=Space+Grotesk:wght@400;600&display=swap"
+		href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Montserrat:wght@400;600&family=Merriweather:wght@400;700&display=swap"
 	/>
 </svelte:head>
 
 <ProtectedRoute>
-	<div
-		class={`h-screen ${theme === 'night' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}
-	>
-		<div class="mx-auto flex h-full max-w-4xl flex-1 flex-col px-4 py-6">
+	<div class="h-screen" style={themeStyles}>
+		<div class="mx-auto flex h-full max-w-6xl flex-1 flex-col px-4 py-6">
 			<div
-				class={`flex h-full flex-col overflow-hidden rounded-3xl border shadow-xl ${theme === 'night' ? 'border-slate-800 bg-slate-900/80' : 'border-slate-200 bg-white/90'}`}
+				class="flex h-full flex-col overflow-hidden rounded-3xl border shadow-xl"
+				style={`background-color: var(--bg-container); border-color: var(--border-color);`}
 			>
 				<header
-					class={`flex items-center justify-between border-b px-4 py-3 ${theme === 'night' ? 'border-slate-800' : 'border-slate-200'}`}
+					class="flex items-center justify-between border-b px-4 py-3"
+					style={`border-color: var(--border-color);`}
 				>
 					<div class="flex items-center gap-3">
 						<button
-							class={`flex h-11 w-11 items-center justify-center rounded-2xl border text-sm font-semibold transition ${theme === 'night' ? 'border-slate-800 bg-slate-900 text-slate-100 hover:bg-slate-800' : 'border-slate-200 bg-white text-slate-900 hover:bg-slate-100'}`}
+							class="flex h-11 w-11 items-center justify-center rounded-2xl border text-sm font-semibold transition hover:opacity-80"
+							style={`background-color: var(--bg-container); border-color: var(--border-color); color: var(--muted-color);`}
 							on:click={goBack}
 							aria-label="Back to library"
 						>
 							<ArrowLeft class="h-5 w-5" />
 						</button>
 						<div class="text-left">
-							<h1 class="text-lg leading-tight font-semibold">
+							<h1
+								class="text-lg leading-tight font-semibold"
+								style={`color: ${currentTheme.text};`}
+							>
 								{documentData?.title ?? 'Untitled document'}
 							</h1>
-							<p class={`text-sm ${mutedClass}`}>
+							<p class="text-sm" style={`color: var(--muted-color);`}>
 								{documentData?.metadata?.author ?? documentData?.original_name ?? 'Unknown author'}
 							</p>
 						</div>
 					</div>
 					<button
-						class={`flex items-center gap-2 rounded-2xl border px-3 py-2 text-sm font-semibold transition ${theme === 'night' ? 'border-slate-800 bg-slate-900 text-slate-100 hover:bg-slate-800' : 'border-slate-200 bg-white text-slate-900 hover:bg-slate-50'}`}
+						class="flex items-center gap-2 rounded-2xl border px-3 py-2 text-sm font-semibold transition hover:opacity-80"
+						style={`background-color: var(--bg-container); border-color: var(--border-color); color: ${currentTheme.text};`}
 						type="button"
 						on:click={toggleControls}
 						aria-expanded={showControls}
@@ -135,11 +162,11 @@
 					</button>
 				</header>
 
-				<main class="flex flex-1 flex-col min-h-0">
-					<section class="flex flex-1 flex-col min-h-0">
+				<main class="flex min-h-0 flex-1 flex-col">
+					<section class="flex min-h-0 flex-1 flex-col">
 						<div
-							class={`flex flex-1 flex-col overflow-y-auto px-6 py-6 ${theme === 'night' ? 'bg-slate-900/40' : 'bg-white/60'}`}
-							style={`font-family: ${selectedFont.stack}; font-size: ${fontSize}px; line-height: ${lineHeight};`}
+							class="flex flex-1 flex-col overflow-y-auto px-6 py-6"
+							style={`font-family: ${selectedFont.stack}; font-size: ${fontSize}px; line-height: ${lineHeight}; background-color: ${currentTheme.bg}; color: ${currentTheme.text};`}
 							aria-live="polite"
 						>
 							{#if documentData && displayedBlocks.length}
@@ -147,8 +174,8 @@
 									{#each displayedBlocks as block (block.page_num + '-' + block.position)}
 										{#if block.type === 'heading'}
 											<h2
-												class={`mb-4 leading-tight font-semibold ${theme === 'night' ? 'text-slate-50' : 'text-slate-900'}`}
-												style={`font-size: ${Math.min(fontSize + 10, 36)}px;`}
+												class="mb-4 leading-tight font-semibold"
+												style={`font-size: ${Math.min(fontSize + 10, 36)}px; color: ${currentTheme.text};`}
 											>
 												{block.content}
 											</h2>
@@ -159,13 +186,15 @@
 								</div>
 							{:else if documentData}
 								<div
-									class={`flex flex-1 items-center justify-center text-center text-sm ${mutedClass}`}
+									class="flex flex-1 items-center justify-center text-center text-sm"
+									style={`color: var(--muted-color);`}
 								>
 									No content on this page.
 								</div>
 							{:else}
 								<div
-									class={`flex flex-1 items-center justify-center text-center text-sm ${mutedClass}`}
+									class="flex flex-1 items-center justify-center text-center text-sm"
+									style={`color: var(--muted-color);`}
 								>
 									Loading book…
 								</div>
@@ -178,35 +207,38 @@
 							{theme}
 							{fontSize}
 							{fontFamily}
-							{mutedClass}
 							{fontOptions}
-							on:themeChange={(event) => (theme = event.detail as 'day' | 'night')}
+							{themes}
+							on:themeChange={(event) => (theme = event.detail as ThemeKey)}
 							on:fontSizeChange={(event) => (fontSize = Number(event.detail))}
 							on:fontFamilyChange={(event) => (fontFamily = event.detail as FontKey)}
 						/>
 					{/if}
 
 					<footer
-						class={`flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between ${theme === 'night' ? 'border-slate-800' : 'border-slate-200'}`}
+						class="flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+						style={`border-color: var(--border-color);`}
 					>
 						<div class="flex flex-1 flex-col gap-2">
 							<div
-								class={`h-2 w-full overflow-hidden rounded-full ${theme === 'night' ? 'bg-slate-800' : 'bg-slate-200'}`}
+								class="h-2 w-full overflow-hidden rounded-full"
+								style={`background-color: var(--border-color);`}
 							>
 								<span
-									class="block h-full rounded-full bg-gradient-to-r from-slate-400 to-slate-500 transition-all"
-									style={`width: ${progressPercent}%;`}
+									class="block h-full rounded-full transition-all"
+									style={`width: ${progressPercent}%; background: linear-gradient(to right, #60A5FA, #3B82F6);`}
 								></span>
 							</div>
-							<p class={`text-sm ${mutedClass}`}>
-								<span class="font-semibold text-slate-500">{progressPercent.toFixed(0)}%</span> read
-								· page {currentPage} of {totalPages}
+							<p class="text-sm" style={`color: var(--muted-color);`}>
+								<span class="font-semibold">{progressPercent.toFixed(0)}%</span> read · page {currentPage}
+								of {totalPages}
 							</p>
 						</div>
 						<div class="flex gap-2">
 							<button
 								type="button"
-								class={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition ${theme === 'night' ? 'border-slate-800 bg-slate-900 text-slate-100 hover:bg-slate-800' : 'border-slate-200 bg-white text-slate-900 hover:bg-slate-50'}`}
+								class="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition hover:opacity-80 disabled:opacity-50"
+								style={`background-color: var(--bg-container); border-color: var(--border-color); color: ${currentTheme.text};`}
 								on:click={previousPage}
 								disabled={currentPage === 1}
 							>
@@ -215,7 +247,8 @@
 							</button>
 							<button
 								type="button"
-								class={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition ${theme === 'night' ? 'border-slate-800 bg-slate-900 text-slate-100 hover:bg-slate-800' : 'border-slate-200 bg-white text-slate-900 hover:bg-slate-50'}`}
+								class="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition hover:opacity-80 disabled:opacity-50"
+								style={`background-color: var(--bg-container); border-color: var(--border-color); color: ${currentTheme.text};`}
 								on:click={nextPage}
 								disabled={currentPage === totalPages}
 							>

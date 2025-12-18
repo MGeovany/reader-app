@@ -6,33 +6,53 @@
 		key: string;
 		label: string;
 		stack: string;
+		recommended?: boolean;
 	};
+
+	type ThemeConfig = {
+		name: string;
+		bg: string;
+		text: string;
+		bgContainer: string;
+		border: string;
+		muted: string;
+	};
+
+	type Themes = {
+		[key: string]: ThemeConfig;
+	};
+
+	type ThemeKey = keyof Themes;
 
 	const MIN_FONT_SIZE = 15;
 	const MAX_FONT_SIZE = 26;
 
-	type Theme = 'day' | 'night';
-
 	const dispatch = createEventDispatcher<{
-		themeChange: Theme;
+		themeChange: ThemeKey;
 		fontSizeChange: number;
 		fontFamilyChange: FontOption['key'];
 	}>();
 
-	export let theme: Theme = 'day';
-	export let fontSize = 18;
-	export let fontFamily: FontOption['key'] = 'merriweather';
-export let mutedClass = 'text-slate-500';
-export let fontOptions: ReadonlyArray<FontOption> = [];
-// Slider fill percentage to drive the iOS-like gradient
-$: sliderPercent = Math.min(100, Math.max(0, ((fontSize - MIN_FONT_SIZE) / (MAX_FONT_SIZE - MIN_FONT_SIZE)) * 100));
+	export let theme: ThemeKey = 'night'; // Optimal dark theme (recommended)
+	export let fontSize = 17; // Recommended size for reduced eye strain
+	export let fontFamily: FontOption['key'] = 'roboto';
+	export let fontOptions: ReadonlyArray<FontOption> = [];
+	export let themes: Themes = {};
+	// Slider fill percentage to drive the iOS-like gradient
+	$: sliderPercent = Math.min(
+		100,
+		Math.max(0, ((fontSize - MIN_FONT_SIZE) / (MAX_FONT_SIZE - MIN_FONT_SIZE)) * 100)
+	);
 
-	function setTheme(next: Theme) {
+	function setTheme(next: ThemeKey) {
 		if (theme !== next) {
 			theme = next;
 			dispatch('themeChange', next);
 		}
 	}
+
+	$: currentTheme = themes[theme] || themes['night'];
+	$: mutedClass = currentTheme?.muted || '#B3B3B3';
 
 	function setFontFamily(next: FontOption['key']) {
 		if (fontFamily !== next) {
@@ -63,15 +83,19 @@ $: sliderPercent = Math.min(100, Math.max(0, ((fontSize - MIN_FONT_SIZE) / (MAX_
 
 <section
 	data-theme={theme}
-	class={`border-t px-5 py-5 transition ${theme === 'night' ? 'border-slate-800 bg-slate-900 text-slate-50' : 'border-slate-200 bg-slate-50 text-slate-900'}`}
+	class="border-t px-5 py-5 transition"
+	style={`border-color: ${currentTheme?.border || '#2D2D2D'}; background-color: ${currentTheme?.bgContainer || '#1E1E1E'}; color: ${currentTheme?.text || '#E6E6E6'};`}
 >
 	<div class="space-y-5">
 		<div>
-			<p class={`text-xs font-semibold tracking-[0.18em] uppercase ${mutedClass}`}>Size</p>
+			<p class="text-xs font-semibold tracking-[0.18em] uppercase" style={`color: ${mutedClass};`}>
+				Size
+			</p>
 			<div class="mt-2 flex items-center gap-3">
 				<button
 					type="button"
-					class="motion-pill flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-base font-bold text-slate-700 shadow-sm hover:-translate-y-px hover:shadow transition"
+					class="motion-pill flex h-10 w-10 items-center justify-center rounded-full border text-base font-bold shadow-sm transition hover:-translate-y-px hover:shadow"
+					style={`border-color: ${currentTheme?.border || '#2D2D2D'}; background-color: ${currentTheme?.bgContainer || '#1E1E1E'}; color: ${currentTheme?.text || '#E6E6E6'};`}
 					on:click={() => adjustFont(-1)}
 					aria-label="Decrease font size"
 					disabled={fontSize <= MIN_FONT_SIZE}
@@ -91,7 +115,8 @@ $: sliderPercent = Math.min(100, Math.max(0, ((fontSize - MIN_FONT_SIZE) / (MAX_
 				/>
 				<button
 					type="button"
-					class="motion-pill flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-base font-bold text-slate-700 shadow-sm hover:-translate-y-px hover:shadow transition"
+					class="motion-pill flex h-10 w-10 items-center justify-center rounded-full border text-base font-bold shadow-sm transition hover:-translate-y-px hover:shadow"
+					style={`border-color: ${currentTheme?.border || '#2D2D2D'}; background-color: ${currentTheme?.bgContainer || '#1E1E1E'}; color: ${currentTheme?.text || '#E6E6E6'};`}
 					on:click={() => adjustFont(1)}
 					aria-label="Increase font size"
 					disabled={fontSize >= MAX_FONT_SIZE}
@@ -102,78 +127,77 @@ $: sliderPercent = Math.min(100, Math.max(0, ((fontSize - MIN_FONT_SIZE) / (MAX_
 		</div>
 
 		<div>
-			<p class={`text-xs font-semibold tracking-[0.18em] uppercase ${mutedClass}`}>Theme</p>
+			<p class="text-xs font-semibold tracking-[0.18em] uppercase" style={`color: ${mutedClass};`}>
+				Theme
+			</p>
 			<div class="mt-2 grid grid-cols-2 gap-3">
-				<button
-					type="button"
-					class={`motion-pill flex items-center justify-center gap-2 rounded-full border px-3 py-3 text-sm font-semibold ${
-						theme === 'day'
-							? 'border-sky-300 bg-sky-100 text-slate-900 shadow-[0_12px_26px_rgba(56,189,248,0.25)]'
-							: 'border-slate-800 bg-slate-900 text-slate-100 hover:bg-slate-800'
-					}`}
-					on:click={() => setTheme('day')}
-					aria-pressed={theme === 'day'}
-					data-active={theme === 'day'}
-				>
-					<Sun class="h-4 w-4" /> Day
-				</button>
-				<button
-					type="button"
-					class={`motion-pill flex items-center justify-center gap-2 rounded-full border px-3 py-3 text-sm font-semibold ${
-						theme === 'night'
-							? 'border-sky-300 bg-sky-100 text-slate-900 shadow-[0_12px_26px_rgba(56,189,248,0.25)]'
-							: 'border-slate-200 bg-white text-slate-900 hover:bg-slate-50'
-					}`}
-					on:click={() => setTheme('night')}
-					aria-pressed={theme === 'night'}
-					data-active={theme === 'night'}
-				>
-					<Moon class="h-4 w-4" /> Night
-				</button>
+				{#each Object.entries(themes) as [key, config]}
+					{@const isActive = theme === key}
+					<button
+						type="button"
+						class="motion-pill flex items-center justify-center gap-2 rounded-full border px-3 py-3 text-sm font-semibold transition"
+						class:shadow-lg={isActive}
+						style={isActive
+							? `border-color: #60A5FA; background-color: #DBEAFE; color: #1E293B; box-shadow: 0 12px 26px rgba(56,189,248,0.25);`
+							: `border-color: ${currentTheme?.border || '#2D2D2D'}; background-color: ${currentTheme?.bg || '#121212'}; color: ${currentTheme?.text || '#E6E6E6'}; opacity: 0.8;`}
+						on:click={() => setTheme(key)}
+						aria-pressed={isActive}
+						data-active={isActive}
+					>
+						{#if key === 'day'}
+							<Sun class="h-4 w-4" />
+						{:else if key === 'night'}
+							<Moon class="h-4 w-4" />
+						{/if}
+						<span>{config.name}</span>
+					</button>
+				{/each}
 			</div>
 		</div>
 
 		<div>
-			<p class={`text-xs font-semibold tracking-[0.18em] uppercase ${mutedClass}`}>Fonts</p>
+			<p class="text-xs font-semibold tracking-[0.18em] uppercase" style={`color: ${mutedClass};`}>
+				Fonts
+			</p>
 			<div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-					{#each fontOptions as font}
-						<button
-							type="button"
-							class={`motion-pill rounded-full border px-3 py-3 text-sm font-semibold ${
-								fontFamily === font.key
-									? theme === 'night'
-										? 'border-sky-300 bg-sky-100 text-slate-900 shadow-[0_12px_26px_rgba(56,189,248,0.25)]'
-										: 'border-slate-200 bg-slate-100 text-slate-900 shadow-[0_12px_26px_rgba(0,0,0,0.08)]'
-									: theme === 'night'
-										? 'border-slate-800 bg-slate-900 text-slate-100 hover:bg-slate-800'
-										: 'border-slate-200 bg-white text-slate-900 hover:bg-slate-50'
-							}`}
-							style={`font-family: ${font.stack};`}
-							on:click={() => setFontFamily(font.key)}
-							aria-pressed={fontFamily === font.key}
-							data-active={fontFamily === font.key}
-						>
-							{font.label}
-						</button>
-					{/each}
+				{#each fontOptions as font}
+					{@const isActive = fontFamily === font.key}
+					<button
+						type="button"
+						class="motion-pill rounded-full border px-3 py-3 text-sm font-semibold transition"
+						class:shadow-lg={isActive}
+						style={isActive
+							? `font-family: ${font.stack}; border-color: #60A5FA; background-color: #DBEAFE; color: #1E293B; box-shadow: 0 12px 26px rgba(56,189,248,0.25);`
+							: `font-family: ${font.stack}; border-color: ${currentTheme?.border || '#2D2D2D'}; background-color: ${currentTheme?.bg || '#121212'}; color: ${currentTheme?.text || '#E6E6E6'}; opacity: 0.8;`}
+						on:click={() => setFontFamily(font.key)}
+						aria-pressed={isActive}
+						data-active={isActive}
+					>
+						<span>{font.label}</span>
+					</button>
+				{/each}
 			</div>
 		</div>
 	</div>
 </section>
 
 <style>
+	section .slider-ios {
+		--slider-fill: #38bdf8;
+		--slider-shadow: 0 8px 18px rgba(56, 189, 248, 0.24);
+		--slider-border: rgba(0, 0, 0, 0.1);
+	}
+
 	section[data-theme='day'] .slider-ios {
 		--slider-track: #e5e7eb;
-		--slider-fill: #38bdf8;
 		--slider-thumb: #ffffff;
-		--slider-shadow: 0 8px 18px rgba(56, 189, 248, 0.24);
+		--slider-border: rgba(0, 0, 0, 0.1);
 	}
 
 	section[data-theme='night'] .slider-ios {
-		--slider-track: #0f172a;
-		--slider-fill: #38bdf8;
-		--slider-thumb: #0b1220;
-		--slider-shadow: 0 8px 18px rgba(56, 189, 248, 0.28);
+		--slider-track: #1e1e1e;
+		--slider-thumb: #121212;
+		--slider-border: rgba(255, 255, 255, 0.1);
 	}
 
 	.slider-ios {
@@ -188,9 +212,12 @@ $: sliderPercent = Math.min(100, Math.max(0, ((fontSize - MIN_FONT_SIZE) / (MAX_
 			var(--slider-track) var(--slider-percent, 50%),
 			var(--slider-track) 100%
 		);
+		border: 1px solid var(--slider-border);
 		outline: none;
 		box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
-		transition: background 160ms ease;
+		transition:
+			background 160ms ease,
+			border-color 160ms ease;
 	}
 
 	.slider-ios:focus-visible {
@@ -205,7 +232,9 @@ $: sliderPercent = Math.min(100, Math.max(0, ((fontSize - MIN_FONT_SIZE) / (MAX_
 		background: var(--slider-thumb);
 		border: 2px solid rgba(255, 255, 255, 0.28);
 		box-shadow: var(--slider-shadow);
-		transition: transform 140ms ease, box-shadow 160ms ease;
+		transition:
+			transform 140ms ease,
+			box-shadow 160ms ease;
 	}
 
 	.slider-ios:hover::-webkit-slider-thumb {
@@ -221,6 +250,7 @@ $: sliderPercent = Math.min(100, Math.max(0, ((fontSize - MIN_FONT_SIZE) / (MAX_
 		height: 14px;
 		border-radius: 999px;
 		background: transparent;
+		border: 1px solid var(--slider-border);
 	}
 
 	.slider-ios::-moz-range-progress {
@@ -236,7 +266,9 @@ $: sliderPercent = Math.min(100, Math.max(0, ((fontSize - MIN_FONT_SIZE) / (MAX_
 		background: var(--slider-thumb);
 		border: 2px solid rgba(255, 255, 255, 0.28);
 		box-shadow: var(--slider-shadow);
-		transition: transform 140ms ease, box-shadow 160ms ease;
+		transition:
+			transform 140ms ease,
+			box-shadow 160ms ease;
 	}
 
 	.slider-ios:hover::-moz-range-thumb {
