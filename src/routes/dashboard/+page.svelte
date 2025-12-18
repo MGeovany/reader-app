@@ -8,6 +8,7 @@
 	import { formatBytes } from '../../utils/format';
 	import UploadFiles from '$lib/components/UploadFiles.svelte';
 	import ProfilePicture from '$lib/components/ProfilePicture.svelte';
+	import ProjectFooter from '$lib/components/ProjectFooter.svelte';
 
 	let uploading = false;
 
@@ -61,10 +62,10 @@
 </script>
 
 <ProtectedRoute>
-	<div class="min-h-screen bg-slate-50 text-slate-900">
+	<div class="flex min-h-screen flex-col bg-slate-50 text-slate-900">
 		<!-- <Sidebar /> -->
 
-		<main class="min-h-screen transition-[padding] duration-200 peer-hover/sidebar:pl-64">
+		<main class="flex-1 transition-[padding] duration-200 peer-hover/sidebar:pl-64">
 			<div class="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-8">
 				<header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 					<div class="flex flex-col gap-3">
@@ -112,35 +113,6 @@
 			</div>
 		</main>
 
-		<!-- Project Info Footer -->
-		<footer class="border-t border-slate-200 bg-white/50 py-6">
-			<div class="mx-auto max-w-6xl px-6">
-				<div class="flex flex-col items-center gap-2 text-center">
-					<p class="text-xs text-slate-500">
-						PDF Text Reader · Transform illegible PDFs into readable text
-					</p>
-					<div class="flex items-center gap-3 text-xs text-slate-400">
-						<span>Feedback:</span>
-						<a
-							href="mailto:marlon.castro@thefndrs.com"
-							class="underline decoration-slate-300 transition-colors hover:text-slate-600 hover:decoration-slate-500"
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							marlon.castro@thefndrs.com
-						</a>
-						<span class="text-slate-300">·</span>
-						<a
-							href="https://github.com/MGeovany/lector-server"
-							class="underline decoration-slate-300 transition-colors hover:text-slate-600 hover:decoration-slate-500"
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							GitHub
-						</a>
-					</div>
-				</div>
-			</div>
-		</footer>
+		<ProjectFooter />
 	</div>
 </ProtectedRoute>

@@ -94,7 +94,7 @@
 			<div class="mt-2 flex items-center gap-3">
 				<button
 					type="button"
-					class="motion-pill flex h-10 w-10 items-center justify-center rounded-full border text-base font-bold shadow-sm transition hover:-translate-y-px hover:shadow"
+					class="size-button flex h-10 w-10 items-center justify-center rounded-full border text-base font-bold shadow-sm"
 					style={`border-color: ${currentTheme?.border || '#2D2D2D'}; background-color: ${currentTheme?.bgContainer || '#1E1E1E'}; color: ${currentTheme?.text || '#E6E6E6'};`}
 					on:click={() => adjustFont(-1)}
 					aria-label="Decrease font size"
@@ -115,7 +115,7 @@
 				/>
 				<button
 					type="button"
-					class="motion-pill flex h-10 w-10 items-center justify-center rounded-full border text-base font-bold shadow-sm transition hover:-translate-y-px hover:shadow"
+					class="size-button flex h-10 w-10 items-center justify-center rounded-full border text-base font-bold shadow-sm"
 					style={`border-color: ${currentTheme?.border || '#2D2D2D'}; background-color: ${currentTheme?.bgContainer || '#1E1E1E'}; color: ${currentTheme?.text || '#E6E6E6'};`}
 					on:click={() => adjustFont(1)}
 					aria-label="Increase font size"
@@ -186,18 +186,21 @@
 		--slider-fill: #38bdf8;
 		--slider-shadow: 0 8px 18px rgba(56, 189, 248, 0.24);
 		--slider-border: rgba(0, 0, 0, 0.1);
+		--slider-thumb-border: rgba(0, 0, 0, 0.15);
 	}
 
 	section[data-theme='day'] .slider-ios {
 		--slider-track: #e5e7eb;
 		--slider-thumb: #ffffff;
 		--slider-border: rgba(0, 0, 0, 0.1);
+		--slider-thumb-border: rgba(0, 0, 0, 0.15);
 	}
 
 	section[data-theme='night'] .slider-ios {
 		--slider-track: #1e1e1e;
 		--slider-thumb: #121212;
 		--slider-border: rgba(255, 255, 255, 0.1);
+		--slider-thumb-border: rgba(255, 255, 255, 0.2);
 	}
 
 	.slider-ios {
@@ -216,8 +219,8 @@
 		outline: none;
 		box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.12);
 		transition:
-			background 160ms ease,
-			border-color 160ms ease;
+			background 300ms cubic-bezier(0.4, 0, 0.2, 1),
+			border-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	.slider-ios:focus-visible {
@@ -230,11 +233,17 @@
 		width: 22px;
 		border-radius: 50%;
 		background: var(--slider-thumb);
-		border: 2px solid rgba(255, 255, 255, 0.28);
+		border: 1px solid var(--slider-thumb-border);
 		box-shadow: var(--slider-shadow);
 		transition:
-			transform 140ms ease,
-			box-shadow 160ms ease;
+			transform 300ms cubic-bezier(0.4, 0, 0.2, 1),
+			box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1),
+			border-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+		cursor: grab;
+	}
+
+	.slider-ios::-webkit-slider-thumb:active {
+		cursor: grabbing;
 	}
 
 	.slider-ios:hover::-webkit-slider-thumb {
@@ -264,11 +273,17 @@
 		width: 22px;
 		border-radius: 50%;
 		background: var(--slider-thumb);
-		border: 2px solid rgba(255, 255, 255, 0.28);
+		border: 1px solid var(--slider-thumb-border);
 		box-shadow: var(--slider-shadow);
 		transition:
-			transform 140ms ease,
-			box-shadow 160ms ease;
+			transform 300ms cubic-bezier(0.4, 0, 0.2, 1),
+			box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1),
+			border-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+		cursor: grab;
+	}
+
+	.slider-ios::-moz-range-thumb:active {
+		cursor: grabbing;
 	}
 
 	.slider-ios:hover::-moz-range-thumb {
@@ -278,6 +293,29 @@
 
 	.slider-ios:active::-moz-range-thumb {
 		transform: scale(0.96);
+	}
+
+	.size-button {
+		aspect-ratio: 1;
+		transition:
+			transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+			box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
+			opacity 200ms ease;
+	}
+
+	.size-button:hover:not(:disabled) {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
+
+	.size-button:active:not(:disabled) {
+		transform: translateY(0);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	.size-button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 
 	.motion-pill {
