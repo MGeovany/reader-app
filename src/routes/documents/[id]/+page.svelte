@@ -161,23 +161,27 @@
 
 	async function nextPage() {
 		if (currentPage < totalPages) {
-			currentPage += 1;
-			await savePosition();
-			// Scroll to top
+			// Scroll to top immediately before changing page
 			if (contentContainer) {
-				contentContainer.scrollTo({ top: 0, behavior: 'smooth' });
+				contentContainer.scrollTop = 0;
 			}
+			// Change page immediately after scroll
+			currentPage += 1;
+			// Save position in background (don't await)
+			savePosition();
 		}
 	}
 
 	async function previousPage() {
 		if (currentPage > 1) {
-			currentPage -= 1;
-			await savePosition();
-			// Scroll to top
+			// Scroll to top immediately before changing page
 			if (contentContainer) {
-				contentContainer.scrollTo({ top: 0, behavior: 'smooth' });
+				contentContainer.scrollTop = 0;
 			}
+			// Change page immediately after scroll
+			currentPage -= 1;
+			// Save position in background (don't await)
+			savePosition();
 		}
 	}
 
@@ -385,22 +389,22 @@
 										{/if}
 									{/each}
 								</div>
-							{:else if loadingPosition}
-								<div
-									class="flex flex-1 items-center justify-center text-center text-sm"
-									style={`color: var(--muted-color);`}
-								>
-									<div class="flex flex-col items-center gap-3">
-										<Loader class="h-6 w-6 animate-spin" style={`color: var(--muted-color);`} />
-										<p>Loading</p>
-									</div>
-								</div>
 							{:else if documentData}
 								<div
 									class="flex flex-1 items-center justify-center text-center text-sm"
 									style={`color: var(--muted-color);`}
 								>
 									No content on this page.
+								</div>
+							{:else if loadingPosition}
+								<div
+									class="flex flex-1 items-center justify-center text-center text-sm"
+									style={`color: var(--muted-color);`}
+								>
+									<div class="flex flex-col items-center gap-2">
+										<Loader class="h-5 w-5 animate-spin" style={`color: var(--muted-color);`} />
+										<span>Loading position…</span>
+									</div>
 								</div>
 							{:else}
 								<div

@@ -6,12 +6,24 @@ import { DocumentAPI } from '$lib/api';
 export const documents = writable<Document[]>([]);
 export const currentDocument = writable<Document | null>(null);
 export const documentsLoading = writable<boolean>(false);
+let documentsCache: Document[] | null = null;
+let lastLoadTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-// Load all documents
-export async function loadDocuments(userID: string) {
+// Load all documents (with caching)
+export async function loadDocuments(userID: string, forceRefresh = false) {
+	// Return cached data if available and not expired
+	const now = Date.now();
+	if (!forceRefresh && documentsCache && (now - lastLoadTime) < CACHE_DURATION) {
+		documents.set(documentsCache);
+		return;
+	}
+
 	documentsLoading.set(true);
 	try {
 		const docs = await DocumentAPI.getDocumentsByUserID(userID);
+		documentsCache = docs;
+		lastLoadTime = now;
 		documents.set(docs);
 	} catch (error) {
 		console.error('Failed to load documents:', error);
