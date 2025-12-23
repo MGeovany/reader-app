@@ -59,7 +59,7 @@
 <main class="bg-cream h-full">
 	<slot />
 
-	{#if $authLoading && !['/login', '/register', '/forgot-password', '/landing'].includes($page.url.pathname)}
+	{#if $authLoading && !['/login', '/register', '/landing'].includes($page.url.pathname)}
 		<div class="fixed inset-0 z-40 flex items-center justify-center bg-white/80">
 			<div class="text-sm font-medium text-slate-700">Loading…</div>
 		</div>

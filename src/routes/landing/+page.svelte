@@ -7,7 +7,7 @@
 		if ($isAuthenticated) {
 			goto('/');
 		} else {
-			goto('/register');
+			goto('/login');
 		}
 	}
 </script>

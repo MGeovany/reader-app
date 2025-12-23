@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 </script>
 
-<div class="min-h-screen bg-cream">
+<div class="bg-cream min-h-screen">
 	<!-- Navigation -->
 	<nav class="border-b border-black/15">
 		<div class="mx-auto max-w-4xl px-6 py-4">
@@ -23,57 +23,48 @@
 		<h1 class="mb-4 text-5xl font-light tracking-tight text-slate-950 sm:text-6xl">The Story</h1>
 		<p class="mb-12 text-sm text-slate-600">Why Lector exists</p>
 
-		<div class="prose prose-slate max-w-none">
+		<div class="prose max-w-none prose-slate">
 			<p class="text-lg leading-relaxed text-slate-800">
-				It started with a simple problem: finding books in Honduras isn't easy.
+				Getting books here in Honduras is hard enough, but finding good PDFs in proper format or
+				well-formatted ones is a whole other thing. Sometimes you have to download Google extensions
+				just to get dark mode so you can read more comfortably, extensions that usually stop working
+				after a week or ask you to pay for a subscription.
 			</p>
 
 			<p class="mt-6 leading-relaxed text-slate-800">
-				Ordering from Amazon takes weeks, sometimes months. Local bookstores have limited
-				selections, and if you want something specific, you need to place an order weeks in
-				advance. For someone who loves to read, this creates a real barrier.
+				Adobe Reader and other applications are made for different things. They're built for
+				contracts and documents.
 			</p>
 
 			<p class="mt-6 leading-relaxed text-slate-800">
-				So, like many others here, I turned to PDFs. They're immediate, accessible, and free.
-				But they come with their own frustrations. PDFs scattered across folders, lost in
-				downloads, mixed with work documents. Opening one means wrestling with clunky PDF
-				viewers that weren't designed for reading—they're built for documents, not stories.
+				I'm of the mindset that it's better to have one tool that solves a single problem really
+				well, that's why Lector was created.
 			</p>
 
 			<p class="mt-6 leading-relaxed text-slate-800">
-				I wanted something better. A space that felt intentional. A place to organize my
-				library, yes, but more importantly, a place to actually <em>read</em>. To focus. To
-				lose yourself in the words without fighting the interface.
+				Every little detail is designed to help you concentrate. You can change the fonts, choose
+				themes that feel right, and the reader remembers exactly where you left off.
 			</p>
 
 			<p class="mt-6 leading-relaxed text-slate-800">
-				That's how Lector was born. It's not just a PDF reader—it's a reading environment.
-				Every design decision is made to help you concentrate. Customizable fonts, comfortable
-				themes, reading position tracking. The interface fades away so the words can take
-				center stage.
-			</p>
-
-			<p class="mt-6 leading-relaxed text-slate-800">
-				Looking ahead, I see Lector becoming more than just a personal reading space. I imagine
-				a community where readers can share PDFs with each other—recommendations, discoveries,
-				conversations around the texts we love. Because reading, at its best, is a shared
-				experience, even when we're reading alone.
+				Down the line, I'd like Lector to be more than just a personal reading space. I'd love for
+				it to become a place where people share books they've found, recommend good reads, discover
+				new authors, and talk about them.
 			</p>
 
 			<p class="mt-10 text-lg leading-relaxed text-slate-800">
-				For now, Lector is a quiet space for focused reading. But it's built with the future in
-				mind—a future where access to books isn't limited by geography, and where the tools we
-				use respect the act of reading itself.
+				For now, Lector is simply a quiet place to read and concentrate.
 			</p>
 		</div>
 
 		<div class="mt-16 border-t border-black/10 pt-12">
 			<p class="text-sm text-slate-600">
-				Want to learn more? <a href="/about" class="underline-offset-4 hover:underline">Read about Lector</a> or{' '}
+				Want to learn more? <a href="/about" class="underline-offset-4 hover:underline"
+					>Read about Lector</a
+				>
+				or{' '}
 				<a href="/contact" class="underline-offset-4 hover:underline">get in touch</a>.
 			</p>
 		</div>
 	</main>
 </div>
-
