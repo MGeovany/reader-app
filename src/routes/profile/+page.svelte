@@ -31,6 +31,16 @@
 		<Header />
 		<Sidebar />
 
+		<!-- Overlay for mobile when sidebar is open -->
+		{#if $sidebarOpen}
+			<button
+				type="button"
+				class="fixed inset-0 z-10 bg-black/20 transition-opacity duration-300 md:hidden"
+				on:click={() => sidebarOpen.set(false)}
+				aria-label="Close sidebar"
+			></button>
+		{/if}
+
 		<main
 			class="min-h-screen pt-14 transition-[padding] duration-300 ease-in-out"
 			class:md:pl-60={$sidebarOpen}
