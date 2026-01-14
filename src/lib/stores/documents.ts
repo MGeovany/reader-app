@@ -35,6 +35,8 @@ function normalizeDocuments(docs: Document[]): Document[] {
 export const documents = writable<Document[]>([]);
 export const currentDocument = writable<Document | null>(null);
 export const documentsLoading = writable<boolean>(false);
+export const isSearchMode = writable<boolean>(false);
+export const searchQuery = writable<string>('');
 let documentsCache: Document[] | null = null;
 let lastLoadTime = 0;
 let lastUserID: string | null = null;
@@ -63,6 +65,8 @@ export async function loadDocuments(userID: string, forceRefresh = false) {
 	}
 
 	documentsLoading.set(true);
+	isSearchMode.set(false);
+	searchQuery.set('');
 	try {
 		const docs = await DocumentAPI.getDocumentsByUserID(userID);
 		const normalized = normalizeDocuments(docs);
@@ -70,9 +74,11 @@ export async function loadDocuments(userID: string, forceRefresh = false) {
 		lastLoadTime = now;
 		lastUserID = userID;
 		documents.set(normalized);
+		return normalized;
 	} catch (error) {
 		console.error('Failed to load documents:', error);
 		documents.set([]);
+		return [];
 	} finally {
 		documentsLoading.set(false);
 	}
@@ -191,6 +197,8 @@ export async function loadDocument(id: string) {
 // Search documents
 export async function searchDocuments(query: string) {
 	documentsLoading.set(true);
+	isSearchMode.set(true);
+	searchQuery.set(query);
 	try {
 		const docs = await DocumentAPI.searchDocuments(query);
 		documents.set(docs);
