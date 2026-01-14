@@ -60,7 +60,7 @@ export async function loadDocuments(userID: string, forceRefresh = false) {
 		// This allows cache to work when navigating back
 		if (documentsCache.length > 0 && (currentDocsValue.length === 0 || lastUserID === userID)) {
 			documents.set(documentsCache);
-			return;
+			return documentsCache;
 		}
 	}
 
