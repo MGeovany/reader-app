@@ -24,11 +24,11 @@
 		// In case the user is already authenticated when this page mounts.
 		if ($isAuthenticated && !hasLoadedDocuments) {
 			hasLoadedDocuments = true;
-			loadDocuments($currentUser?.id || '').then(() => {
+			loadDocuments($currentUser?.id || '').then((docs) => {
 				// reading_position now comes inline from GET /documents/user/{id}.
 				readingPositions.update((positions) => {
 					const next = new Map(positions);
-					for (const doc of $documents) {
+					for (const doc of docs) {
 						if (doc.reading_position) next.set(doc.id, doc.reading_position);
 					}
 					return next;
@@ -40,10 +40,10 @@
 	// React to auth becoming ready after initial mount (e.g. on reload).
 	$: if ($isAuthenticated && !hasLoadedDocuments) {
 		hasLoadedDocuments = true;
-		loadDocuments($currentUser?.id || '').then(() => {
+		loadDocuments($currentUser?.id || '').then((docs) => {
 			readingPositions.update((positions) => {
 				const next = new Map(positions);
-				for (const doc of $documents) {
+				for (const doc of docs) {
 					if (doc.reading_position) next.set(doc.id, doc.reading_position);
 				}
 				return next;
