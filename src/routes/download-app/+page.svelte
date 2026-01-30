@@ -84,14 +84,12 @@
 				<div class="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
 					<!-- App Store badge -->
 					<div class="flex flex-col items-center justify-center gap-4 py-2 lg:items-start">
-						<a
-							href=""
-							aria-label="Download on the App Store"
-							aria-disabled="true"
-							title="Coming soon"
-							on:click|preventDefault
-							class="group inline-flex h-16 w-[238px] items-center gap-4 rounded-2xl border border-white/20 bg-[linear-gradient(180deg,#2a2a2a_0%,#000_100%)] px-5 text-white shadow-[0_18px_45px_rgba(0,0,0,0.22)] ring-1 ring-black/10 transition select-none focus-visible:ring-2 focus-visible:ring-black/30 focus-visible:outline-none"
-						>
+					<a
+						href="https://apps.apple.com/us/app/lector-clean-reading/id6757951061"
+						aria-label="Download on the App Store"
+						title="View on the App Store"
+						class="group inline-flex h-16 w-[238px] items-center gap-4 rounded-2xl border border-white/20 bg-[linear-gradient(180deg,#2a2a2a_0%,#000_100%)] px-5 text-white shadow-[0_18px_45px_rgba(0,0,0,0.22)] ring-1 ring-black/10 transition select-none focus-visible:ring-2 focus-visible:ring-black/30 focus-visible:outline-none"
+					>
 							<AppleIcon class="h-9 w-9 text-white" />
 
 							<span class="flex min-w-0 flex-col leading-none">
